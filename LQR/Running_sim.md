@@ -236,9 +236,10 @@ PY
 # verify the missing variable now exists
 grep -n "pkg_share_models" "$INST" | head -n 20
 grep -n "model_path" "$INST" | head -n 20
+---------------------------------------------------
 
-------------------------------------source /opt/ros/jazzy/setup.bash
-```source /root/so100_ws/install/setup.bash
+```source /opt/ros/jazzy/setup.bash
+source /root/so100_ws/install/setup.bash
 
 export ROS2CLI_DISABLE_DAEMON=1
 export GZ_SIM_SYSTEM_PLUGIN_PATH="/opt/ros/jazzy/lib:$GZ_SIM_SYSTEM_PLUGIN_PATH"
