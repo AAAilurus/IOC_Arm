@@ -236,6 +236,7 @@ PY
 # verify the missing variable now exists
 grep -n "pkg_share_models" "$INST" | head -n 20
 grep -n "model_path" "$INST" | head -n 20
+
 ---------------------------------------------------
 
 ```source /opt/ros/jazzy/setup.bash
