@@ -198,8 +198,9 @@ ros2 topic pub --once /joint_trajectory_controller/joint_trajectory trajectory_m
 
 ```
 ```
+
 ------------------------------------------------------------------------
-INST=/root/so100_ws/install/so100_2dof_bringup/share/so100_2dof_bringup/launch/gz_2dof.launch.py
+```INST=/root/so100_ws/install/so100_2dof_bringup/share/so100_2dof_bringup/launch/gz_2dof.launch.py
 
 python3 - <<'PY'
 from pathlib import Path
