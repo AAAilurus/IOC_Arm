@@ -237,3 +237,15 @@ PY
 grep -n "pkg_share_models" "$INST" | head -n 20
 grep -n "model_path" "$INST" | head -n 20
 
+------------------------------------source /opt/ros/jazzy/setup.bash
+```source /root/so100_ws/install/setup.bash
+
+export ROS2CLI_DISABLE_DAEMON=1
+export GZ_SIM_SYSTEM_PLUGIN_PATH="/opt/ros/jazzy/lib:$GZ_SIM_SYSTEM_PLUGIN_PATH"
+export GZ_SIM_RESOURCE_PATH="$(ros2 pkg prefix so_100_arm)/share/so_100_arm/models:$GZ_SIM_RESOURCE_PATH"
+
+ros2 launch so100_2dof_bringup gz_2dof.launch.py
+
+
+
+
