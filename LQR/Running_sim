@@ -198,3 +198,40 @@ ros2 topic pub --once /joint_trajectory_controller/joint_trajectory trajectory_m
 
 ```
 ```
+INST=/root/so100_ws/install/so100_2dof_bringup/share/so100_2dof_bringup/launch/gz_2dof.launch.py
+
+python3 - <<'PY'
+from pathlib import Path
+import re
+
+p = Path("/root/so100_ws/install/so100_2dof_bringup/share/so100_2dof_bringup/launch/gz_2dof.launch.py")
+txt = p.read_text().splitlines()
+
+out = []
+inserted = False
+
+for line in txt:
+    # before the first model_path that uses pkg_share_models, insert definition
+    if (not inserted) and ("model_path" in line) and ("pkg_share_models" in line):
+        out.append("    pkg_share_models = FindPackageShare('so_100_arm').find('so_100_arm')")
+        inserted = True
+
+    out.append(line)
+
+# also force model_path to use the correct path form
+joined = "\n".join(out)
+joined = re.sub(
+    r"model_path\s*=\s*os\.path\.join\([^\n]*pkg_share_models[^\n]*\)",
+    "model_path = os.path.join(pkg_share_models, 'models')",
+    joined,
+    count=1
+)
+
+p.write_text(joined)
+print("patched:", p)
+PY
+
+# verify the missing variable now exists
+grep -n "pkg_share_models" "$INST" | head -n 20
+grep -n "model_path" "$INST" | head -n 20
+
