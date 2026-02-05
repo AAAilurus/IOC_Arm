@@ -72,4 +72,35 @@ ros2 control list_controllers -c /so101/controller_manager
 
 #-----------------------------------
 
+Activate the controllers: 
+# Go from unconfigured → inactive → active
+echo "=== Activating SO100 Controllers ==="
+ros2 control set_controller_state -c /so100/controller_manager joint_state_broadcaster inactive
+ros2 control set_controller_state -c /so100/controller_manager joint_state_broadcaster active
 
+ros2 control set_controller_state -c /so100/controller_manager arm_position_controller inactive
+ros2 control set_controller_state -c /so100/controller_manager arm_position_controller active
+
+echo ""
+echo "=== Activating SO101 Controllers ==="
+ros2 control set_controller_state -c /so101/controller_manager joint_state_broadcaster inactive
+ros2 control set_controller_state -c /so101/controller_manager joint_state_broadcaster active
+
+ros2 control set_controller_state -c /so101/controller_manager arm_position_controller inactive
+ros2 control set_controller_state -c /so101/controller_manager arm_position_controller active
+
+# Verify
+echo ""
+echo "=== Final SO100 Controllers ==="
+ros2 control list_controllers -c /so100/controller_manager
+
+echo ""
+echo "=== Final SO101 Controllers ==="
+ros2 control list_controllers -c /so101/controller_manager
+
+# Check topics including commands
+echo ""
+echo "=== Available Topics ==="
+ros2 topic list | grep -E "so100|so101"
+
+--------------------------------------------------------
