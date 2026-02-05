@@ -1,0 +1,15 @@
+Start the docker file: 
+
+docker rm -f so100_resume 2>/dev/null || true
+xhost +local:docker >/dev/null 2>&1 || true
+
+docker run -it \
+  --name so100_resume \
+  --net=host \
+  --device=/dev/dri \
+  -e DISPLAY=$DISPLAY \
+  -e QT_X11_NO_MITSHM=1 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+  so100_saved:2026-02-05 bash
+
+---------------------------------------------------------------------------------
