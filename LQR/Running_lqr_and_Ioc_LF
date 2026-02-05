@@ -12,4 +12,54 @@ docker run -it \
   -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
   so100_saved:2026-02-05 bash
 
----------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+#Check Executables: 
+
+source /opt/ros/jazzy/setup.bash
+source /root/so100_ws/install/setup.bash
+
+ros2 pkg executables so100_ioc_pipeline
+
+#------------------------------------------------------------------------------------
+
+
+
+#---------------------------------------------------------------------
+
+#Set Controllers:
+# --- SO100 controller types (set them every time, safe) ---
+ros2 param set /so100/controller_manager joint_state_broadcaster.type joint_state_broadcaster/JointStateBroadcaster || true
+ros2 param set /so100/controller_manager arm_position_controller.type position_controllers/JointGroupPositionController || true
+
+# --- SO101 controller types ---
+ros2 param set /so101/controller_manager joint_state_broadcaster.type joint_state_broadcaster/JointStateBroadcaster || true
+ros2 param set /so101/controller_manager arm_position_controller.type position_controllers/JointGroupPositionController || true
+
+# --- load controllers if needed ---
+ros2 control load_controller -c /so100/controller_manager joint_state_broadcaster || true
+ros2 control load_controller -c /so100/controller_manager arm_position_controller || true
+ros2 control load_controller -c /so101/controller_manager joint_state_broadcaster || true
+ros2 control load_controller -c /so101/controller_manager arm_position_controller || true
+
+# --- set params for 2DOF joints ---
+ros2 param set /so100/arm_position_controller joints "['Shoulder_Pitch','Elbow']" || true
+ros2 param set /so100/arm_position_controller interface_name position || true
+ros2 param set /so101/arm_position_controller joints "['Shoulder_Pitch','Elbow']" || true
+ros2 param set /so101/arm_position_controller interface_name position || true
+
+# --- activate controllers ---
+ros2 control set_controller_state -c /so100/controller_manager joint_state_broadcaster active || true
+ros2 control set_controller_state -c /so100/controller_manager arm_position_controller active || true
+ros2 control set_controller_state -c /so101/controller_manager joint_state_broadcaster active || true
+ros2 control set_controller_state -c /so101/controller_manager arm_position_controller active || true
+
+# --- show status ---
+echo "=== SO100 controllers ==="
+ros2 control list_controllers -c /so100/controller_manager
+echo "=== SO101 controllers ==="
+ros2 control list_controllers -c /so101/controller_manager
+
+
+#-----------------------------------
+
+
