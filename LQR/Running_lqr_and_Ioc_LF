@@ -22,7 +22,17 @@ ros2 pkg executables so100_ioc_pipeline
 
 #------------------------------------------------------------------------------------
 
+Run the simulation:
 
+
+# Set the correct resource path
+export GZ_SIM_RESOURCE_PATH="/root/so100_ws/install/so_100_arm/share/so_100_arm/models:$GZ_SIM_RESOURCE_PATH"
+
+# Verify it's set
+echo "GZ_SIM_RESOURCE_PATH = $GZ_SIM_RESOURCE_PATH"
+
+# Launch again
+ros2 launch so100_2dof_bringup gz_dual_2dof.launch.py
 
 #---------------------------------------------------------------------
 
