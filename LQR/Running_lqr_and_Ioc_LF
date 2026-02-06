@@ -104,3 +104,11 @@ echo "=== Available Topics ==="
 ros2 topic list | grep -E "so100|so101"
 
 --------------------------------------------------------
+docker exec -it so100_resume bash
+
+source /opt/ros/jazzy/setup.bash
+source /root/so100_ws/install/setup.bash
+
+# Run the automated test
+/root/so100_ws/test_ioc_complete.sh
+
