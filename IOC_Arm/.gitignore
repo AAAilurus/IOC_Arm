@@ -1,0 +1,17 @@
+# colcon / ROS2
+**/build/
+**/install/
+**/log/
+
+# ROS runtime
+.ros/
+**/.ros/
+
+# Python
+**/__pycache__/
+**/*.pyc
+
+# Gazebo caches
+**/.gazebo/
+**/ignition/
+**/*.db
