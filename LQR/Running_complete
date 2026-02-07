@@ -1,0 +1,44 @@
+Terminal 1: launch dual simulation (both namespaces)
+source /opt/ros/jazzy/setup.bash
+source /root/so100_ws/install/setup.bash
+export RMW_FASTRTPS_USE_SHM=0
+export ROS_LOCALHOST_ONLY=1
+
+ros2 launch so100_2dof_bringup gz_dual_2dof.launch.py
+
+Terminal 2: run leader controller on /so100
+source /opt/ros/jazzy/setup.bash
+source /root/so100_ws/install/setup.bash
+export RMW_FASTRTPS_USE_SHM=0
+export ROS_LOCALHOST_ONLY=1
+
+ros2 run so100_ioc_pipeline leader_lqr --ros-args \
+  -p ns:=/so100 \
+  -p q_des:="[-0.4,0.6]" \
+  -p rate_hz:=50.0 \
+  -p duration_s:=5.0
+
+Terminal 3: (offline) learn Q from printed K* (optional)
+source /opt/ros/jazzy/setup.bash
+source /root/so100_ws/install/setup.bash
+
+ros2 run so100_ioc_pipeline ioc_learn_from_K -- \
+  --k_star 3.07784446 0.0 2.6651457 0.0  0.0 3.07784446 0.0 2.6651457 \
+  --out /root/so100_ws/ioc_results/learned_Q.npz \
+  --alpha 0.5 --iters 3000 --print_every 300
+
+Terminal 4: run follower on /so101 using learned Q
+source /opt/ros/jazzy/setup.bash
+source /root/so100_ws/install/setup.bash
+export RMW_FASTRTPS_USE_SHM=0
+export ROS_LOCALHOST_ONLY=1
+
+ros2 run so100_ioc_pipeline follower_ioc_fixed --ros-args \
+  -p ns:=/so101 \
+  -p q_file:=/root/so100_ws/ioc_results/learned_Q.npz \
+  -p q_des:="[-0.4,0.6]" \
+  -p dq_des:="[0.0,0.0]" \
+  -p rate_hz:=50.0 \
+  -p duration_s:=10.0 \
+  -p u_max:=5.0 \
+  -p dq_max:=2.0
