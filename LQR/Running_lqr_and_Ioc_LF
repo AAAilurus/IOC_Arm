@@ -120,3 +120,87 @@ source /root/so100_ws/install/setup.bash
 # Run the automated test
 /root/so100_ws/test_ioc_complete.sh
 
+---------------------------------cd /root/so100_ws
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+
+ros2 run so101_ioc ioc_exactgrad --ros-args \
+  -p leader_state_topic:=/so100/joint_states \
+  -p leader_joints:='["Shoulder_Pitch", "Elbow"]' \
+  -p follower_cmd_topic:=/so101/arm_position_controller/commands \
+  -p follower_joints:='["Shoulder_Pitch", "Elbow"]' \
+  -p rate_hz:=50.0 \
+  -p q_des:='[0.8, -0.8]' \
+  -p dq_des:='[0.0, 0.0]' \
+  -p R_diag:='[1.0, 1.0]' \
+  -p Q0_diag:='[1.0, 1.0, 0.1, 0.1]' \
+  -p alphaQ:=0.5 \
+  -p pd_floor:=0.000001 \
+  -p print_every:=100 \
+  -p warmup:=5 \
+  -p u_max:=2.0 \
+  -p dq_max:=2.0------------------
+
+--------------------------------------
+
+cd /root/so100_ws
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+
+ros2 run so101_ioc ioc_exactgrad --ros-args \
+  -p leader_state_topic:=/so100/joint_states \
+  -p leader_joints:='["Shoulder_Pitch", "Elbow"]' \
+  -p follower_cmd_topic:=/so101/arm_position_controller/commands \
+  -p follower_joints:='["Shoulder_Pitch", "Elbow"]' \
+  -p rate_hz:=50.0 \
+  -p q_des:='[0.8, -0.8]' \
+  -p dq_des:='[0.0, 0.0]' \
+  -p R_diag:='[1.0, 1.0]' \
+  -p Q0_diag:='[1.0, 1.0, 0.1, 0.1]' \
+  -p alphaQ:=0.5 \
+  -p pd_floor:=0.000001 \
+  -p print_every:=100 \
+  -p warmup:=5 \
+  -p u_max:=2.0 \
+  -p dq_max:=2.0
+```
+
+---
+
+## What You'll See:
+
+**Terminal 2 (Leader):**
+```
+[INFO] [so100_lqr_outer_loop]: [LQR] rate=50.0Hz dt=0.0200s
+[INFO] [so100_lqr_outer_loop]: [LQR] control_scale=0.01
+```
+
+**Terminal 3 (Follower):**
+```
+[INFO] [ioc_exactgrad]: [IOC] iter=100 Qdiag=[1.2, 1.2, 0.15, 0.15]
+K=
+[[4.89 0.00 3.41 0.00]
+ [0.00 4.89 0.00 3.41]]
+
+[INFO] [ioc_exactgrad]: [IOC] iter=200 Qdiag=[2.5, 2.5, 0.23, 0.23]
+K=
+[[7.07 0.00 4.12 0.00]
+ [0.00 7.07 0.00 4.12]]
+
+... (K converges toward target [20, 0, 6, 0])
+
+---------------------------------------------------
+
+cd /root/so100_ws && source /opt/ros/jazzy/setup.bash && source install/setup.bash && python3 unified_ioc_logger.py
+
+cd /root/so100_ws && source /opt/ros/jazzy/setup.bash && source install/setup.bash && ros2 run so100_lqr lqr_with_Q --ros-args -p state_topic:=/so100/joint_states -p cmd_topic:=/so100/arm_position_controller/commands -p q_des:='[0.5, -0.6]' -p Q_diag:='[100.0, 100.0, 10.0, 10.0]' -p R_diag:='[0.5, 0.5]' -p control_scale:=0.01
+
+cd /root/so100_ws && python3 discrete_ioc_learn_from_leader.py
+
+cd /root/so100_ws && source /opt/ros/jazzy/setup.bash && source install/setup.bash && ros2 run so100_lqr lqr_with_Q --ros-args -p state_topic:=/so101/joint_states -p cmd_topic:=/so101/arm_position_controller/commands -p q_des:='[0.5, -0.6]' -p Q_diag:='[99.999, 99.999, 10.0, 10.0]' -p R_diag:='[0.5, 0.5]' -p control_scale:=0.01
+
+cd /root/so100_ws && head -40 ioc_results/unified_data.csv
+
+
+
+
