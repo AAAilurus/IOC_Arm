@@ -202,5 +202,9 @@ cd /root/so100_ws && source /opt/ros/jazzy/setup.bash && source install/setup.ba
 cd /root/so100_ws && head -40 ioc_results/unified_data.csv
 
 
+-------------------------------
+run all at once 
+
+cd /root/so100_ws && ./run_complete_ioc.sh
 
 
