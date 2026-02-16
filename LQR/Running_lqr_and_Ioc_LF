@@ -220,5 +220,6 @@ docker run -it \
   -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
   complete_ioc_modelfree:latest bash
 
+./model_free/run_complete_ioc_modelfree_gz.sh 900
 
 
