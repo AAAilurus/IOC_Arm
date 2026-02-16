@@ -208,3 +208,17 @@ run all at once
 cd /root/so100_ws && ./run_complete_ioc.sh
 
 
+
+--------------------------------------------
+
+docker run -it \
+  --name modelfree \
+  --net=host \
+  --device=/dev/dri \
+  -e DISPLAY=$DISPLAY \
+  -e QT_X11_NO_MITSHM=1 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+  complete_ioc_modelfree:latest bash
+
+
+
