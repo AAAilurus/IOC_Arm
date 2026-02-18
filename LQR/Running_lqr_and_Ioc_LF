@@ -238,3 +238,19 @@ sleep 2
 
 echo "=== Terminal 2: Pipeline (watches leader → learns Q → controls SO101) ==="
 ros2 run so101_ioc mf_pipeline --ros-args -p q_des:="$TARGET"
+
+--------------------------------------------------------
+cd /root/so100_ws
+colcon build --packages-select so101_ioc
+source install/setup.bash
+
+kill $(pgrep -f mf_) 2>/dev/null || true
+sleep 2
+ros2 run so101_ioc mf_leader &
+sleep 2
+ros2 run so101_ioc mf_pipeline
+
+
+-------------------------------------------------
+
+
