@@ -1,0 +1,14 @@
+{
+  "q_des": [
+    1.0,
+    -1.0
+  ],
+  "joints": [
+    "Shoulder_Pitch",
+    "Elbow"
+  ],
+  "rate_hz": 100.0,
+  "dt": 0.01,
+  "N": 60000,
+  "note": "Saved as (Ek,Uk,Ek1,Uk1) where each row k is one transition pair."
+}
