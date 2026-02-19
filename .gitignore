@@ -1,17 +1,9 @@
-# colcon / ROS2
-**/build/
-**/install/
-**/log/
-
-# ROS runtime
-.ros/
-**/.ros/
-
-# Python
-**/__pycache__/
-**/*.pyc
-
-# Gazebo caches
-**/.gazebo/
-**/ignition/
-**/*.db
+build/
+install/
+log/
+*.pyc
+__pycache__/
+*.npz
+*.npy
+*.csv
+.DS_Store
