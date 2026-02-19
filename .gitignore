@@ -1,15 +1,9 @@
-# ROS 2 workspace artifacts
-**/build/
-**/install/
-**/log/
-
-# Python
-**/__pycache__/
-**/*.pyc
-**/*.pyo
-**/*.pyd
-
-# Caches
-**/.cache/
+build/
+install/
+log/
+*.pyc
+__pycache__/
+*.npz
+*.npy
+*.csv
 .DS_Store
-
