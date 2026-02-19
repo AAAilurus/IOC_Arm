@@ -256,23 +256,16 @@ ros2 run so101_ioc mf_pipeline
 # Terminal A — Gazebo
 ros2 launch so101_2dof_bringup gz_2dof.launch.py
 
-# Terminal B — Leader (runs continuously)
-ros2 run freemodel fm_leader --ros-args -p q_des:="[1.0, -1.0]"
+ros2 run freemodel fm_leader --ros-args \
+  -p q_des:="[0.7, -1.2]" \
+  -p n_samples:=60000
 
-# Terminal C — Logger (records 60000 samples then auto-exits)
-ros2 run freemodel fm_pipeline --ros-args \
-  -p q_des:="[1.0, -1.0]" \
-  -p n_samples:=60000 \
-  -p save_dir:="/root/so100_ws/freemodel_out"
+-----------------------------------
 
-# Terminal D — OFFLINE SPSA (after pipeline finishes, pure Python no ROS)
 python3 /root/so100_ws/src/freemodel/freemodel/fm_offline_spsa.py \
-  --data_dir /root/so100_ws/freemodel_out \
-  --out_dir  /root/so100_ws/freemodel_out \
-  --max_iter 1000 \
-  --tol_k 1e-3
+  --out_dir /root/so100_ws/freemodel_out
 
-# Terminal D — Follower (after Q_learned.npy exists, auto-stops at goal)
+----------------------------------------
 ros2 run freemodel fm_follower --ros-args \
-  -p q_des:="[1.0, -1.0]" \
   -p q_learned_path:="/root/so100_ws/freemodel_out/Q_learned.npy"
+
