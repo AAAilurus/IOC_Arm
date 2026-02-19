@@ -1,0 +1,12 @@
+{
+  "q_des": [
+    0.7,
+    -1.2
+  ],
+  "joints": [
+    "Shoulder_Pitch",
+    "Elbow"
+  ],
+  "dt": 0.01,
+  "N": 60000
+}
