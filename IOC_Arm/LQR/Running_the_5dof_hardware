@@ -1,0 +1,58 @@
+docker rm -f so100 2>/dev/null || true
+
+xhost +local:docker
+
+docker run -it --name so100 \
+  --net=host \
+  --privileged \
+  --device=/dev/ttyACM0:/dev/ttyACM0 \
+  -e DISPLAY=$DISPLAY \
+  -e QT_X11_NO_MITSHM=1 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+  -v /dev/dri:/dev/dri \
+  so100:j bash
+
+-----------------------------------------------
+
+ls -la /dev/ttyACM0
+
+-------------------------------------
+
+sed -i 's|/dev/ttyUSB0|/dev/ttyACM0|g' \
+/root/so100_ws/src/SO-100-arm/config/so_100_arm.ros2_control.xacro
+
+--------------------------------------------------
+
+sed -i 's|/dev/ttyUSB0|/dev/ttyACM0|g' \
+/root/so100_ws/src/so_arm_100_hardware/config/hardware_config.yaml
+
+---------------------------------------
+
+cd /root/so100_ws
+source /opt/ros/jazzy/setup.bash
+colcon build --packages-select so_arm_100_hardware so_100_arm
+source /root/so100_ws/install/setup.bash
+
+# quick permissions for now
+chmod 666 /dev/ttyACM0
+
+ros2 launch so_100_arm hardware.launch.py
+
+------------------------------------------
+ros2 action send_goal /so_100_arm_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{
+  trajectory: {
+    joint_names: [Shoulder_Rotation, Shoulder_Pitch, Elbow, Wrist_Pitch, Wrist_Roll],
+    points: [
+      {
+        positions: [-0.5, -1.0, 0.5, 0.0, 0.0],
+        velocities: [0.0, 0.0, 0.0, 0.0, 0.0],
+        time_from_start: {sec: 2, nanosec: 0}
+      },
+      {
+        positions: [-0.5, 0.50, 0.0, 0.0, 0.0],
+        velocities: [0.0, 0.0, 0.0, 0.0, 0.0],
+        time_from_start: {sec: 4, nanosec: 0}
+      }
+    ]
+  }
+}"

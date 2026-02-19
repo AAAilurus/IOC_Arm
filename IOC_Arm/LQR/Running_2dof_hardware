@@ -1,0 +1,60 @@
+ls -la /dev/ttyACM0 /dev/ttyUSB0 2>/dev/null
+dmesg | tail -n 30 | grep -E "ttyACM|ttyUSB"
+
+----------------------------------------
+
+docker rm -f so100 2>/dev/null || true
+xhost +local:docker
+
+docker run -it --name so100 \
+  --net=host \
+  --privileged \
+  --device=/dev/ttyACM0:/dev/ttyACM0 \
+  -e DISPLAY=$DISPLAY \
+  -e QT_X11_NO_MITSHM=1 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+  -v /dev/dri:/dev/dri \
+  so100:j bash
+
+---------------------------------------
+
+cd /root/so100_ws
+source /opt/ros/jazzy/setup.bash
+colcon build
+source install/setup.bash
+
+--------------------------------
+
+ls /root/so100_ws/src | grep so_arm_100_hardware
+cd /root/so100_ws
+colcon build --packages-select so_arm_100_hardware
+source install/setup.bash
+ros2 pkg list | grep so_arm_100_hardware
+
+-----------------------------------
+
+chmod 666 /dev/ttyACM0
+
+----------------------
+
+ros2 launch so100_2dof_bringup hw_2dof.launch.py
+
+--------------------------------------------
+docker exec -it so100 bash
+source /opt/ros/jazzy/setup.bash
+source /root/so100_ws/install/setup.bash
+
+-------------------------------------
+ros2 action send_goal /joint_trajectory_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{
+  trajectory: {
+    joint_names: [Shoulder_Pitch, Elbow],
+    points: [
+      { positions: [0.2, -0.2], time_from_start: {sec: 2} },
+      { positions: [0.0,  0.0], time_from_start: {sec: 4} }
+    ]
+  }
+}"
+
+--------------------------------------------------
+
+
