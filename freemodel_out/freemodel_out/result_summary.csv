@@ -1,0 +1,12 @@
+metric,value
+converged,False
+final_iter,999
+final_K_err,0.03984697
+Q_star_0,100.0
+Q_star_1,100.0
+Q_star_2,10.0
+Q_star_3,10.0
+Q_learned_0,99.58916425
+Q_learned_1,99.58494079
+Q_learned_2,10.0109419
+Q_learned_3,10.02117827
