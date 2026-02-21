@@ -1,0 +1,9 @@
+metric,value
+rankPhi,21
+converged,False
+final_iter,999
+final_K_err,0.023161440826841535
+Q_learned_0,99.94059485160965
+Q_learned_1,99.88937685234994
+Q_learned_2,10.006625041375818
+Q_learned_3,9.974673988140315
