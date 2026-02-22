@@ -99,8 +99,8 @@ class FMLeader(Node):
         self.e = np.array([
             self.sigma_q*np.random.randn(),
             self.sigma_q*np.random.randn(),
-            self.sigma_dq*np.random.randn(),
-            self.sigma_dq*np.random.randn()
+            self.sigma_dq*np.zeros(),
+            self.sigma_dq*np.zeros()
         ], dtype=float)
         self.step_idx = 0
 

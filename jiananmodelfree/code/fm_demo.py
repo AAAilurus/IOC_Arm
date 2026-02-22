@@ -29,6 +29,9 @@ class FMDemo(Node):
         self.declare_parameter('demo_time_s',    25.0)
         self.declare_parameter('zoom_time_s',    6.0)
         self.declare_parameter('q_des',          [0.8, -1.0])
+
+        self.declare_parameter('q_init',         [0.0, 0.0])  # ADD: initial position from terminal
+
         self.declare_parameter('K_star_path',    '/root/so100_ws/freemodel_out/K_star.csv')
         self.declare_parameter('K_learned_path', '/root/so100_ws/freemodel_out/K_learned.csv')
         self.declare_parameter('joints',         ['Shoulder_Pitch', 'Elbow'])
@@ -39,6 +42,9 @@ class FMDemo(Node):
         self.demo_time_s = float(self.get_parameter('demo_time_s').value)
         self.zoom_time_s = float(self.get_parameter('zoom_time_s').value)
         self.q_des       = np.array(self.get_parameter('q_des').value, dtype=float)
+
+        self.q_init      = np.array(self.get_parameter('q_init').value, dtype=float)  # ADD
+
         self.joints      = list(self.get_parameter('joints').value)
         self.log_dir     = str(self.get_parameter('log_dir').value)
         self.plot_dir    = str(self.get_parameter('plot_dir').value)
@@ -64,10 +70,6 @@ class FMDemo(Node):
         self.q_l  = np.zeros(2); self.dq_l  = np.zeros(2)
         self.q_f  = np.zeros(2); self.dq_f  = np.zeros(2)
 
-        # NO velocity limits / NO clamps (per your requirement)
-        self.dqcmd_l = np.zeros(2)
-        self.dqcmd_f = np.zeros(2)
-
         self.t = 0.0
         self.log_t=[]; self.log_lq=[]; self.log_ldq=[]; self.log_lu=[]
         self.log_fq=[]; self.log_fdq=[]; self.log_fu=[]
@@ -77,6 +79,11 @@ class FMDemo(Node):
         self.pub_l = self.create_publisher(Float64MultiArray,'/so100/arm_position_controller/commands',10)
         self.pub_f = self.create_publisher(Float64MultiArray,'/so101/arm_position_controller/commands',10)
         self.timer = self.create_timer(self.dt, self.step)
+
+        # ADD: send initial position to both robots at startup
+        self._send_pos(self.pub_l, self.q_init)
+        self._send_pos(self.pub_f, self.q_init)
+        self.get_logger().info(f"[fm_demo] ✓ q_init={self.q_init} sent to both robots")
 
         self.get_logger().info("[fm_demo] ✓ running SO100(K_star) vs SO101(K_learned)")
 
@@ -94,10 +101,15 @@ class FMDemo(Node):
         self.dq_f = np.array([msg.velocity[i] if len(msg.velocity)>i else 0.0 for i in idx], dtype=float)
         self.have_f = True
 
-    def _send(self, pub, q, dqcmd, u):
-        dqcmd[:] = dqcmd + u*self.dt      # NO limit
-        q_cmd = q + dqcmd*self.dt         # NO clamp
-        msg = Float64MultiArray(); msg.data = q_cmd.tolist()
+    def _send_pos(self, pub, q_cmd):  # ADD: direct position command
+        msg = Float64MultiArray()
+        msg.data = q_cmd.tolist()
+        pub.publish(msg)
+
+    def _send(self, pub, q, dq, u):   # FIX: correct discrete integration (use measured dq)
+        q_cmd = q + dq * self.dt + 0.5 * u * (self.dt ** 2)
+        msg = Float64MultiArray()
+        msg.data = q_cmd.tolist()
         pub.publish(msg)
 
     def step(self):
@@ -106,11 +118,11 @@ class FMDemo(Node):
 
         e_l = np.hstack([self.q_l - self.q_des, self.dq_l])
         u_l = -self.K_star @ e_l
-        self._send(self.pub_l, self.q_l, self.dqcmd_l, u_l)
+        self._send(self.pub_l, self.q_l, self.dq_l, u_l)   # FIX: pass real dq
 
         e_f = np.hstack([self.q_f - self.q_des, self.dq_f])
         u_f = -self.K_learned @ e_f
-        self._send(self.pub_f, self.q_f, self.dqcmd_f, u_f)
+        self._send(self.pub_f, self.q_f, self.dq_f, u_f)   # FIX: pass real dq
 
         self.log_t.append(self.t)
         self.log_lq.append(self.q_l.copy());  self.log_ldq.append(self.dq_l.copy()); self.log_lu.append(u_l.copy())
@@ -122,6 +134,7 @@ class FMDemo(Node):
             self.save_and_plot()
             raise SystemExit
 
+    # plotting + save_and_plot unchanged ...
     def _plot_pair(self, t, yL, yF, ylabel, title1, title2, h1, h2, out_png, xlim):
         fig, (ax1, ax2) = plt.subplots(2,1, figsize=(10,7), sharex=True)
         ax1.plot(t, yL[:,0], lw=2, label='SO100 (K_star)')
@@ -163,7 +176,6 @@ class FMDemo(Node):
         lq  = np.array(self.log_lq);  fq  = np.array(self.log_fq)
         ldq = np.array(self.log_ldq); fdq = np.array(self.log_fdq)
 
-        # full 25s
         self._plot_pair(t, lq, fq, 'Position (rad)',
                         'Joint 1 — Position', 'Joint 2 — Position',
                         self.q_des[0], self.q_des[1],
@@ -176,7 +188,6 @@ class FMDemo(Node):
                         os.path.join(self.plot_dir,'plot2_velocity_25s.png'),
                         self.demo_time_s)
 
-        # zoom (transient)
         zt   = self.zoom_time_s
         mask = t <= zt
         self._plot_pair(t[mask], lq[mask], fq[mask], 'Position (rad)',
