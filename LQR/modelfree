@@ -1,0 +1,82 @@
+cd /root/so100_ws
+source /opt/ros/jazzy/setup.bash
+colcon build --packages-select freemodel
+source /root/so100_ws/install/setup.bash
+
+
+--------------------------------------
+
+ros2 launch so100_2dof_bringup gz_dual_2dof.launch.py
+
+--------------------------------------------------
+# load controllers
+ros2 control load_controller -c /so100/controller_manager joint_state_broadcaster || true
+ros2 control load_controller -c /so100/controller_manager arm_position_controller || true
+ros2 control load_controller -c /so101/controller_manager joint_state_broadcaster || true
+ros2 control load_controller -c /so101/controller_manager arm_position_controller || true
+
+# set params
+ros2 param set /so100/arm_position_controller joints "['Shoulder_Pitch','Elbow']" || true
+ros2 param set /so100/arm_position_controller interface_name position || true
+ros2 param set /so101/arm_position_controller joints "['Shoulder_Pitch','Elbow']" || true
+ros2 param set /so101/arm_position_controller interface_name position || true
+
+# activate
+ros2 control set_controller_state -c /so100/controller_manager joint_state_broadcaster active || true
+ros2 control set_controller_state -c /so100/controller_manager arm_position_controller active || true
+ros2 control set_controller_state -c /so101/controller_manager joint_state_broadcaster active || true
+ros2 control set_controller_state -c /so101/controller_manager arm_position_controller active || true
+
+--------------------------------------------
+#leader
+
+ros2 run freemodel fm_leader --ros-args -p q_des:='[0.5,-0.6]' -p num_traj:=50 -p T_each:=300
+
+#
+
+ros2 run freemodel fm_leader --ros-args \
+  -p q_des:='[0.5,-0.6]' \
+  -p rate_hz:=50.0 \
+  -p num_traj:=50 \
+  -p T_each:=300 \
+  -p settle_steps:=50 \
+  -p sigma_q:=0.4 \
+  -p noise_std:=0.05
+---------------------------
+
+python3 /root/so100_ws/src/freemodel/freemodel/fm_offline_spsa.py --out_dir /root/so100_ws/freemodel_out
+
+#
+
+ros2 run freemodel fm_offline_spsa --ros-args \
+  -p max_iter:=200 \
+  -p a:=0.2 \
+  -p c:=0.02 \
+  -p A:=20 \
+  -p alpha:=0.602 \
+  -p gamma:=0.101
+
+---------------------------
+
+#run follower only
+
+ros2 run freemodel fm_follower --ros-args \
+  -p q_des:='[0.5,-0.6]' \
+  -p rate_hz:=50.0 \
+  -p control_scale:=0.005 \
+  -p use_dq:=false
+
+------------------------------------
+
+# run both combine 
+
+ros2 run freemodel fm_demo --ros-args \
+  -p rate_hz:=50.0 \
+  -p control_scale:=0.005 \
+  -p use_dq:=false \
+  -p waypoints_flat:="[0.0,0.0,  0.6,-0.4,  -0.4,0.6,  0.3,0.3,  0.0,0.0]" \
+  -p num_waypoints:=5 \
+  -p hold_secs:=3.0 \
+  -p settle_time_s:=1.0
+
+-------------------------------------
