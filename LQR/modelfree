@@ -76,7 +76,7 @@ ros2 run freemodel fm_demo --ros-args \
   -p use_dq:=false \
   -p waypoints_flat:="[0.0,0.0,  0.6,-0.4,  -0.4,0.6,  0.3,0.3,  0.0,0.0]" \
   -p num_waypoints:=5 \
-  -p hold_secs:=3.0 \
+  -p hold_secs:=5.0 \
   -p settle_time_s:=1.0
 
 -------------------------------------
