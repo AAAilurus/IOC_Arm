@@ -1,0 +1,13 @@
+docker run -it --rm \
+  --name franka \
+  --net=host \
+  -e DISPLAY=$DISPLAY \
+  -e QT_X11_NO_MITSHM=1 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  -e LIBGL_ALWAYS_SOFTWARE=1 \
+  -e MESA_GL_VERSION_OVERRIDE=3.3 \
+  -e GALLIUM_DRIVER=llvmpipe \
+  osrf/ros:jazzy-desktop
+
+  -------------------------------------------------------
+  
