@@ -21,3 +21,7 @@ ros2 topic list | grep -E "joint_states|command|effort|position"
 ________________________________________________________
 
 ros2 launch franka_gazebo_bringup gazebo_joint_position_controller_example.launch.py
+
+---------------------------------------
+#2dof :
+ros2 launch iocfranka gz_ioc_2dof_torque_fixed.launch.py
