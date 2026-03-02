@@ -11,3 +11,13 @@ docker run -it --rm \
 
   -------------------------------------------------------
   
+source /opt/ros/humble/setup.bash
+source /ros2_ws/install/setup.bash
+
+ros2 node list
+ros2 service list | grep controller_manager
+ros2 control list_controllers
+ros2 topic list | grep -E "joint_states|command|effort|position"
+________________________________________________________
+
+ros2 launch franka_gazebo_bringup gazebo_joint_position_controller_example.launch.py
