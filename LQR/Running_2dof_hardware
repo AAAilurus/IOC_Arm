@@ -56,5 +56,118 @@ ros2 action send_goal /joint_trajectory_controller/follow_joint_trajectory contr
 }"
 
 --------------------------------------------------
+# Check serial devices
+ls /dev/serial/by-id/
+# Should show:
+# usb-1a86_USB_Single_Serial_5AAF218344-if00 -> ../../ttyACM1  (leader)
+# usb-1a86_USB_Single_Serial_5AAF219983-if00 -> ../../ttyACM0  (follower)
+
+# Start container with both USB devices passed through
+docker run -it \
+  --name so100_hw_clean \
+  --device=/dev/ttyACM0 \
+  --device=/dev/ttyACM1 \
+  -v /dev/serial:/dev/serial \
+  so100_ioc_saved:with-hw bash
+
+-----------------------------------------
+source /opt/ros/jazzy/setup.bash
+
+# Clone repo
+cd ~
+git clone https://github.com/AAAilurus/Modelfree.git ModelfreeHW
+cd ModelfreeHW
+
+# Build both packages
+colcon build --packages-select so100_hardware_bringup freemodel
+
+source ~/ModelfreeHW/install/setup.bash
+
+# Install pyserial
+pip install pyserial --break-system-packages
+
+# Verify all executables
+ros2 pkg executables freemodel
+ros2 pkg executables so100_hardware_bringup
+
+
+--------------------------------------
+# Kill any leftover nodes first
+pkill -f leader_hw_node; pkill -f follower_hw_node; sleep 1
+
+python3 << 'EOF'
+import serial, time
+
+for port in ['/dev/ttyACM0', '/dev/ttyACM1']:
+    print(f"\n=== {port} ===")
+    try:
+        s = serial.Serial(port, 1000000, timeout=0.1)
+        for sid in range(1, 10):
+            pkt = bytes([0xFF, 0xFF, sid, 0x04, 0x02, 0x38, 0x02,
+                         (~(sid + 0x04 + 0x02 + 0x38 + 0x02)) & 0xFF])
+            s.write(pkt); time.sleep(0.05)
+            resp = s.read(10)
+            if len(resp) >= 8:
+                raw = resp[5] | (resp[6] << 8)
+                angle = (raw - 2048) * 3.14159 / 2048
+                print(f"  ID {sid}: {angle:+.3f} rad  <- RESPONDS")
+        s.close()
+    except Exception as e:
+        print(f"  Error: {e}")
+EOF
+--------------------------------------------------
+source /opt/ros/jazzy/setup.bash
+source ~/ModelfreeHW/install/setup.bash
+
+ros2 launch so100_hardware_bringup dual_hw_freemodel.launch.py \
+  leader_port:=/dev/ttyACM1 \
+  follower_port:=/dev/ttyACM0 \
+  leader_servo_j1:=4 leader_servo_j2:=5 \
+  follower_servo_j1:=2 follower_servo_j2:=3
+
+--------------------------------------------------
+# On HOST
+docker exec -it so100_hw_clean bash
+
+# Inside container
+source /opt/ros/jazzy/setup.bash
+source ~/ModelfreeHW/install/setup.bash
+
+ros2 run freemodel fm_leader_hw --ros-args \
+  -p servo_id_j1:=4 \
+  -p servo_id_j2:=5 \
+  -p q_des:='[0.5,-0.6]' \
+  -p num_traj:=50 \
+  -p T_each:=300 \
+  -p rate_hz:=50.0 \
+  -p sigma_q:=0.4 \
+  -p noise_std:=0.05 \
+  -p out_dir:=/root/Modelfree/freemodel_hw_out
+------------------------------------------
+
+ros2 run freemodel fm_offline_spsa \
+  --out_dir /root/Modelfree/freemodel_hw_out \
+  --maxIter 1000
+
+-----------------------------------------------
+
+ros2 run freemodel fm_demo_hw --ros-args \
+  -p data_dir:=/root/Modelfree/freemodel_hw_out \
+  -p leader_servo_j1:=4 \
+  -p leader_servo_j2:=5 \
+  -p follower_servo_j1:=2 \
+  -p follower_servo_j2:=3
+
+
+
+
+
+
+
+
+
+
+
+
 
 
