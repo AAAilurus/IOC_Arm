@@ -116,26 +116,26 @@ for port in ['/dev/ttyACM0', '/dev/ttyACM1']:
         print(f"  Error: {e}")
 EOF
 --------------------------------------------------
+docker exec -it so100_hw_clean bash
+
 source /opt/ros/jazzy/setup.bash
-source ~/ModelfreeHW/install/setup.bash
+source ~/Modelfree/install/setup.bash
 
 ros2 launch so100_hardware_bringup dual_hw_freemodel.launch.py \
   leader_port:=/dev/ttyACM1 \
   follower_port:=/dev/ttyACM0 \
-  leader_servo_j1:=4 leader_servo_j2:=5 \
-  follower_servo_j1:=4 follower_servo_j2:=5
+  leader_servo_j1:=2 leader_servo_j2:=3 \
+  follower_servo_j1:=2 follower_servo_j2:=3
 
 --------------------------------------------------
-# On HOST
 docker exec -it so100_hw_clean bash
 
-# Inside container
 source /opt/ros/jazzy/setup.bash
-source ~/ModelfreeHW/install/setup.bash
+source ~/Modelfree_clean/install/setup.bash
 
 ros2 run freemodel fm_leader_hw --ros-args \
-  -p servo_id_j1:=4 \
-  -p servo_id_j2:=5 \
+  -p servo_id_j1:=2 \
+  -p servo_id_j2:=3 \
   -p q_des:='[0.5,-0.6]' \
   -p num_traj:=50 \
   -p T_each:=300 \
@@ -145,21 +145,31 @@ ros2 run freemodel fm_leader_hw --ros-args \
   -p out_dir:=/root/Modelfree/freemodel_hw_out
 ------------------------------------------
 
+source /opt/ros/jazzy/setup.bash
+source ~/Modelfree_clean/install/setup.bash
+
 ros2 run freemodel fm_offline_spsa \
   --out_dir /root/Modelfree/freemodel_hw_out \
   --maxIter 1000
 
 -----------------------------------------------
 
+
+
 ros2 run freemodel fm_demo_hw --ros-args \
   -p data_dir:=/root/Modelfree/freemodel_hw_out \
-  -p leader_servo_j1:=4 \
-  -p leader_servo_j2:=5 \
-  -p follower_servo_j1:=4 \
-  -p follower_servo_j2:=5
-
-
-
+  -p leader_servo_j1:=2 \
+  -p leader_servo_j2:=3 \
+  -p follower_servo_j1:=2 \
+  -p follower_servo_j2:=3 \
+  -p num_waypoints:=2 \
+  -p waypoints_flat:="[0.0,0.0,0.5,-0.6]" \
+  -p hold_secs:=3.0 \
+  -p settle_time_s:=1.0 \
+  -p rate_hz:=50.0 \
+  -p control_scale:=0.005 \
+  -p use_dq:=false \
+  -p debug_every:=20
 
 
 
