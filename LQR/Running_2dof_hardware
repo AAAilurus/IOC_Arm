@@ -121,11 +121,15 @@ docker exec -it so100_hw_clean bash
 source /opt/ros/jazzy/setup.bash
 source ~/Modelfree/install/setup.bash
 
+source /opt/ros/jazzy/setup.bash
+source /root/Modelfree/install/setup.bash
+
 ros2 launch so100_hardware_bringup dual_hw_freemodel.launch.py \
-  leader_port:=/dev/ttyACM0 \
-  follower_port:=/dev/ttyACM1 \
+  leader_port:=/dev/ttyACM1 \
+  follower_port:=/dev/ttyACM0 \
   leader_servo_j1:=2 leader_servo_j2:=3 \
-  follower_servo_j1:=2 follower_servo_j2:=3
+  follower_servo_j1:=2 follower_servo_j2:=3 \
+  goal_speed:=0
 
 --------------------------------------------------
 docker exec -it so100_hw_clean bash
@@ -162,15 +166,14 @@ ros2 run freemodel fm_demo_hw --ros-args \
   -p leader_servo_j2:=3 \
   -p follower_servo_j1:=2 \
   -p follower_servo_j2:=3 \
-  -p num_waypoints:=2 \
-  -p waypoints_flat:="[0.0,0.0,0.5,-0.6]" \
-  -p hold_secs:=3.0 \
-  -p settle_time_s:=1.0 \
+  -p num_waypoints:=1 \
+  -p waypoints_flat:="[0.5,-0.6]" \
+  -p hold_secs:=6.0 \
+  -p settle_time_s:=0.0 \
   -p rate_hz:=50.0 \
   -p control_scale:=0.005 \
   -p use_dq:=false \
   -p debug_every:=20
-
 
 
 
