@@ -125,8 +125,8 @@ source /opt/ros/jazzy/setup.bash
 source /root/Modelfree/install/setup.bash
 
 ros2 launch so100_hardware_bringup dual_hw_freemodel.launch.py \
-  leader_port:=/dev/ttyACM1 \
-  follower_port:=/dev/ttyACM0 \
+  leader_port:=/dev/ttyACM0 \
+  follower_port:=/dev/ttyACM1 \
   leader_servo_j1:=2 leader_servo_j2:=3 \
   follower_servo_j1:=2 follower_servo_j2:=3 \
   goal_speed:=0
