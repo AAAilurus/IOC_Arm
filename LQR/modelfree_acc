@@ -1,0 +1,11 @@
+source /opt/ros/jazzy/setup.bash
+source /root/so100_ws/install/setup.bash
+source /root/Modelfree/install/setup.bash
+
+export DISPLAY=:0
+export QT_X11_NO_MITSHM=1
+
+ros2 launch so100_2dof_bringup gz_dual_2dof.launch.py
+
+-------------------------------------------------------------------------_
+
