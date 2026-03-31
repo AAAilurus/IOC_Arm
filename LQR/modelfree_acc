@@ -1,3 +1,6 @@
+xhost +local:docker
+
+---------------------------------------------------------
 
 unset AMENT_PREFIX_PATH
 unset COLCON_PREFIX_PATH
