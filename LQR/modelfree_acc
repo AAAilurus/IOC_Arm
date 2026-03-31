@@ -1,3 +1,23 @@
+
+unset AMENT_PREFIX_PATH
+unset COLCON_PREFIX_PATH
+unset CMAKE_PREFIX_PATH
+unset PYTHONPATH
+unset LD_LIBRARY_PATH
+
+source /opt/ros/jazzy/setup.bash
+source /root/Modelfree/install/setup.bash
+
+export DISPLAY=:0
+export QT_X11_NO_MITSHM=1
+export XDG_RUNTIME_DIR=/tmp/runtime-root
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR"
+
+export GZ_SIM_SYSTEM_PLUGIN_PATH=/opt/ros/jazzy/lib:/opt/ros/jazzy/opt/gz_sim_vendor/lib:$GZ_SIM_SYSTEM_PLUGIN_PATH
+export IGN_GAZEBO_SYSTEM_PLUGIN_PATH=/opt/ros/jazzy/lib:/opt/ros/jazzy/opt/gz_sim_vendor/lib:$IGN_GAZEBO_SYSTEM_PLUGIN_PATH
+export LD_LIBRARY_PATH=/opt/ros/jazzy/lib:/opt/ros/jazzy/opt/gz_sim_vendor/lib:$LD_LIBRARY_PATH
+
 source /opt/ros/jazzy/setup.bash
 source /root/so100_ws/install/setup.bash
 source /root/Modelfree/install/setup.bash
