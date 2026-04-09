@@ -1,3 +1,20 @@
+
+mkdir -p ~/docker_ws/multi_limo_ws/src
+cd ~/docker_ws/multi_limo_ws/src
+git clone https://github.com/Panos20102k/Multi-Limo-Control.git
+xhost +local:docker
+
+docker run -it --rm \
+  --name multi_limo_humble \
+  --net=host \
+  --ipc=host \
+  -e DISPLAY=$DISPLAY \
+  -e QT_X11_NO_MITSHM=1 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+  -v ~/docker_ws/multi_limo_ws:/root/multi_limo_ws \
+  osrf/ros:humble-desktop
+
+----------------------------------------------------
 cd ~/multi_limo_ws
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install
