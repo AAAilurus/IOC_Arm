@@ -36,4 +36,9 @@ export QT_X11_NO_MITSHM=1
 source /ros2_ws/install/setup.bash
 ros2 launch franka_gazebo_bringup visualize_franka_robot.launch.py load_gripper:=false
 
+---------------------------------------------------------------
+
+ros2 launch franka_leader_3dof gz_fr3_dual_standing_3dof.launch.py
+--------------------------------------------------------------------
+
 
