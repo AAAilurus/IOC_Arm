@@ -45,19 +45,19 @@ source /opt/ros/humble/setup.bash
 source /ros2_ws/install/setup.bash
 
 ros2 param set /leader/controller_manager arm_3dof_cmd.type forward_command_controller/ForwardCommandController
-ros2 control load_controller --controller-manager /leader/controller_manager --set-state inactive arm_3dof_cmd
-ros2 param set /leader/arm_3dof_cmd joints "[leader_fr3_joint3, leader_fr3_joint4, leader_fr3_joint5]"
-ros2 param set /leader/arm_3dof_cmd interface_name effort
-ros2 control set_controller_state --controller-manager /leader/controller_manager arm_3dof_cmd active
+ros2 control unload_controller --controller-manager /leader/controller_manager arm_3dof_cmd
+ros2 run controller_manager spawner arm_3dof_cmd \
+  -c /leader/controller_manager \
+  --param-file /ros2_ws/src/franka_leader_3dof/config/leader_arm3.yaml
 -------------------------------------
 source /opt/ros/humble/setup.bash
 source /ros2_ws/install/setup.bash
-
 ros2 param set /follower/controller_manager arm_3dof_cmd.type forward_command_controller/ForwardCommandController
-ros2 control load_controller --controller-manager /follower/controller_manager --set-state inactive arm_3dof_cmd
-ros2 param set /follower/arm_3dof_cmd joints "[follower_fr3_joint3, follower_fr3_joint4, follower_fr3_joint5]"
-ros2 param set /follower/arm_3dof_cmd interface_name effort
-ros2 control set_controller_state --controller-manager /follower/controller_manager arm_3dof_cmd active
+ros2 control unload_controller --controller-manager /follower/controller_manager arm_3dof_cmd
+ros2 run controller_manager spawner arm_3dof_cmd \
+  -c /follower/controller_manager \
+  --param-file /ros2_ws/src/franka_follower_3dof/config/follower_arm3.yaml
+
 -----------------------------
 
 
