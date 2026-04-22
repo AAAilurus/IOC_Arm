@@ -60,4 +60,29 @@ ros2 run controller_manager spawner arm_3dof_cmd \
 
 -----------------------------
 
+ros2 run iocfranka_3dof fr3_j345_exact_lqr --ros-args \
+  -r __ns:=/leader \
+  -p joint_name_prefix:=leader_fr3_ \
+  -p joint_states_topic:=/leader/joint_states \
+  -p command_topic:=/leader/arm_3dof_cmd/commands \
+  -p q_des_j3:=0.3 \
+  -p q_des_j4:=-1.8 \
+  -p q_des_j5:=0.2
+
+----------------------------------------------------------
+source /opt/ros/humble/setup.bash
+source /ros2_ws/install/setup.bash
+
+ros2 run iocfranka_3dof fr3_j345_exact_lqr --ros-args \
+  -r __ns:=/follower \
+  -p joint_name_prefix:=follower_fr3_ \
+  -p joint_states_topic:=/follower/joint_states \
+  -p command_topic:=/follower/arm_3dof_cmd/commands \
+  -p q_des_j3:=0.3 \
+  -p q_des_j4:=-1.8 \
+  -p q_des_j5:=0.2
+
+-----------------------------------------------
+
+
 
