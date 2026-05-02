@@ -84,6 +84,48 @@ ros2 run iocfranka_3dof fr3_j345_exact_lqr --ros-args \
   -p q_des_j5:=0.2
 
 -----------------------------------------------
+pkill -f fr3_j345 || true
+pkill -f fr3_fm || true
 
+ros2 run iocfranka_3dof fr3_fm_leader_collect --ros-args \
+  -p joint_name_prefix:=leader_fr3_ \
+  -p joint_states_topic:=/leader/joint_states \
+  -p command_topic:=/leader/arm_3dof_cmd/commands \
+  -p q_des_j3:=0.3 \
+  -p q_des_j4:=-1.8 \
+  -p q_des_j5:=0.2 \
+  -p n_traj:=50 \
+  -p steps_per_traj:=300 \
+  -p noise_std:=0.15 \
+  -p tau_limit:=25.0 \
+  -p save_dir:=/tmp/fr3_freemodel_leader
+
+-----------------------------------------------------------
+ros2 run iocfranka_3dof fr3_fm_offline_spsa -- \
+  --data_dir /tmp/fr3_freemodel_leader \
+  --out_dir /tmp/fr3_freemodel_learned \
+  --maxIter 1500 \
+  --alphaQ 0.2 \
+  --beta_Q 30.0 \
+  --Q_ref_diag 100 100 100 10 10 10 \
+  --Q_init_diag 10 10 10 10 10 10 \
+  --pd_floor 1.0 \
+  --R_diag 0.8 0.8 0.8
+
+--------------------------------------------------
+
+source /opt/ros/humble/setup.bash
+source /ros2_ws/install/setup.bash
+
+ros2 run iocfranka_3dof fr3_fm_follower_run --ros-args \
+  -p joint_name_prefix:=follower_fr3_ \
+  -p joint_states_topic:=/follower/joint_states \
+  -p command_topic:=/follower/arm_3dof_cmd/commands \
+  -p q_des_j3:=0.3 \
+  -p q_des_j4:=-1.8 \
+  -p q_des_j5:=0.2 \
+  -p k_path:=/tmp/fr3_freemodel_learned/K_learned.npy \
+  -p scale:=0.7 \
+  -p tau_limit:=25.0
 
 
