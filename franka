@@ -40,6 +40,8 @@ ros2 launch franka_gazebo_bringup visualize_franka_robot.launch.py load_gripper:
 source /opt/ros/humble/setup.bash
 source /ros2_ws/install/setup.bash
 ros2 launch franka_leader_3dof gz_fr3_dual_standing_3dof.launch.py
+
+ros2 launch franka_leader_3dof gz_fr3_dual_standing_3dof.launch.py
 --------------------------------------------------------------------
 
 source /opt/ros/humble/setup.bash
